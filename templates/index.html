@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 mb-8">
+    <h2 class="text-xl font-bold mb-4 text-gray-800">🔍 Dynamic Search Engine</h2>
+    <form method="GET" action="{{ url_for('index') }}" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div>
+            <label class="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-1">Car Model</label>
+            <input type="text" name="car_model" value="{{ car_model }}" placeholder="e.g. Toyota Civic" class="w-full border border-gray-300 p-2.5 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+        </div>
+        <div>
+            <label class="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-1">Part Description</label>
+            <input type="text" name="part_name" value="{{ part_name }}" placeholder="e.g. Windscreen" class="w-full border border-gray-300 p-2.5 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+        </div>
+        <div>
+            <label class="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-1">Quoted From</label>
+            <input type="date" name="start_date" value="{{ start_date }}" class="w-full border border-gray-300 p-2.5 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+        </div>
+        <div>
+            <label class="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-1">Quoted To</label>
+            <input type="date" name="end_date" value="{{ end_date }}" class="w-full border border-gray-300 p-2.5 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+        </div>
+        <div class="md:col-span-4 flex justify-end space-x-3 mt-2">
+            <a href="{{ url_for('index') }}" class="px-4 py-2 text-sm bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 font-medium">Reset Form</a>
+            <button type="submit" class="px-6 py-2 text-sm bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700 shadow-md">Apply Filters</button>
+        </div>
+    </form>
+</div>
+
+<div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+    <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+            <tr>
+                <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Date Quoted</th>
+                <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Car Model</th>
+                <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Part Name / Description</th>
+                <th class="px-6 py-4 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">Price Rate</th>
+            </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-200 bg-white">
+            {% for item in results %}
+            <tr class="hover:bg-gray-50 transition-colors">
+                <td class="px-6 py-4 text-sm text-gray-500 whitespace-nowrap">{{ item.quotation_date.strftime('%Y-%m-%d') }}</td>
+                <td class="px-6 py-4 text-sm font-semibold text-gray-900">{{ item.car_model }}</td>
+                <td class="px-6 py-4 text-sm text-gray-700">{{ item.part_name }}</td>
+                <td class="px-6 py-4 text-sm text-right font-bold text-blue-600 whitespace-nowrap">NRP {{ "{:,.2f}".format(item.rate) }}</td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="4" class="px-6 py-12 text-center text-gray-400 font-medium">No recorded entries found matching your query criteria.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

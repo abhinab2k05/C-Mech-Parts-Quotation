@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Car Part Price Tracker</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 text-gray-800">
+    <nav class="bg-slate-950 text-white shadow">
+        <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
+            <a href="{{ url_for('models_gallery') }}" class="text-xl font-bold tracking-tight text-blue-400">C-Mech Parts Quotation</a>
+            <div class="space-x-6 flex items-center">
+                <a href="{{ url_for('models_gallery') }}" class="hover:text-blue-400 font-medium transition">Car Models</a>
+                <a href="{{ url_for('index') }}" class="hover:text-blue-400 font-medium transition">🔍 All Parts Search</a>
+                <a href="{{ url_for('upload_file') }}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow font-medium transition">Import Sheet</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-6xl mx-auto px-4 py-8">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, msg in messages %}
+                    <div class="p-4 mb-6 rounded-xl font-semibold text-white bg-{% if category == 'danger' %}red{% else %}green{% endif %}-500 shadow">
+                        {{ msg }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </main>
+</body>
+</html>

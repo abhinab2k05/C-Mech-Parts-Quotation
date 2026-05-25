@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="mb-6 flex justify-between items-center">
+    <div>
+        <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">Fleet Profiles View</h1>
+        <p class="text-sm text-gray-500 mt-1">Select a car profile deck to view historical part cost analysis logs.</p>
+    </div>
+    <a href="{{ url_for('upload_file') }}" class="px-4 py-2 text-sm font-bold bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 shadow-sm rounded-lg transition">
+        + Add New Fleet Car Model
+    </a>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    {% for car in unique_cars %}
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition flex flex-col justify-between">
+        <div>
+            <div class="h-48 w-full bg-slate-900 relative">
+                {% if car.car_photo and car.car_photo != 'placeholder.jpg' %}
+                    <img src="{{ url_for('static', filename='car_photos/' + car.car_photo) }}" alt="{{ car.car_model }}" class="w-full h-full object-cover">
+                {% else %}
+                    <div class="w-full h-full flex flex-col items-center justify-center text-slate-500 bg-slate-800">
+                        <span class="text-4xl mb-1">🚗</span>
+                        <span class="text-xs uppercase font-bold tracking-wider text-slate-400">No Custom Photo</span>
+                    </div>
+                {% endif %}
+                <span class="absolute bottom-3 right-3 bg-slate-900/80 text-white text-xs font-bold px-2 py-1 rounded backdrop-blur-xs">
+                    📦 {{ car.total_parts }} Part Quotes
+                </span>
+            </div>
+
+            <div class="p-5">
+                <h2 class="text-xl font-bold text-gray-900 truncate" title="{{ car.car_model }}">
+                    {{ car.car_model }}
+                </h2>
+                <p class="text-xs text-gray-400 mt-1 font-medium">Relational Profile Ledger</p>
+            </div>
+        </div>
+
+        <div class="px-5 pb-5 pt-2">
+            <a href="{{ url_for('index', car_model=car.car_model) }}" class="block w-full text-center px-4 py-2.5 bg-slate-100 hover:bg-blue-600 text-slate-700 hover:text-white font-bold rounded-lg transition text-sm">
+                View Parts Database &rarr;
+            </a>
+        </div>
+    </div>
+    {% else %}
+    <div class="col-span-1 md:col-span-2 lg:col-span-3 text-center py-20 bg-white rounded-xl border border-gray-200">
+        <span class="text-5xl">📊</span>
+        <h3 class="text-gray-700 font-bold text-xl mt-4">Database Empty</h3>
+        <p class="text-sm text-gray-400 mt-1 max-w-sm mx-auto">No inventory data arrays found. Please import an item spreadsheet sheet configuration to get started.</p>
+        <a href="{{ url_for('upload_file') }}" class="mt-4 inline-block px-5 py-2.5 bg-blue-600 text-white font-bold text-sm rounded-lg shadow-md hover:bg-blue-700 transition">Import First Sheet</a>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
