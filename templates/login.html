@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Database Security Gate</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-900 h-screen flex items-center justify-center px-4">
+    <div class="max-w-md w-full bg-white rounded-2xl shadow-xl border border-gray-100 p-8 space-y-6">
+        <div class="text-center">
+            <span class="text-4xl">🔐</span>
+            <h1 class="text-2xl font-extrabold text-gray-900 mt-3 tracking-tight">C-Mech Database Access</h1>
+            <p class="text-sm text-gray-400 mt-1">Please insert your team terminal password token to continue.</p>
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, msg in messages %}
+                    <div class="p-3 text-xs rounded-lg font-bold text-center text-white bg-red-500 shadow-sm animate-pulse">
+                        {{ msg }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <form method="POST" action="{{ url_for('login') }}" class="space-y-4">
+            <div>
+                <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5">Terminal Access Password</label>
+                <input type="password" name="password" required placeholder="••••••••••••" class="w-full border border-gray-300 p-3 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition text-center tracking-widest font-black text-lg bg-gray-50">
+            </div>
+            <button type="submit" class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-md transition transform active:scale-95">
+                Unlock Secure Server &rarr;
+            </button>
+        </form>
+    </div>
+</body>
+</html>

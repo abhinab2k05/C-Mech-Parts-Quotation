@@ -11,9 +11,10 @@
         <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
             <a href="{{ url_for('models_gallery') }}" class="text-xl font-bold tracking-tight text-blue-400">C-Mech Parts Quotation</a>
             <div class="space-x-6 flex items-center">
-                <a href="{{ url_for('models_gallery') }}" class="hover:text-blue-400 font-medium transition">Car Models</a>
-                <a href="{{ url_for('index') }}" class="hover:text-blue-400 font-medium transition">🔍 All Parts Search</a>
-                <a href="{{ url_for('upload_file') }}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow font-medium transition">Import Sheet</a>
+    <a href="{{ url_for('models_gallery') }}" class="hover:text-blue-400 font-medium transition">🚗 Car Models</a>
+    <a href="{{ url_for('index') }}" class="hover:text-blue-400 font-medium transition">🔍 All Parts Search</a>
+    <a href="{{ url_for('upload_file') }}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow font-medium transition">Import Sheet</a>
+    <a href="{{ url_for('logout') }}" class="text-xs font-bold uppercase tracking-wide text-red-400 hover:text-red-500 transition pl-4 border-l border-slate-800">Sign Out</a>
             </div>
         </div>
     </nav>
