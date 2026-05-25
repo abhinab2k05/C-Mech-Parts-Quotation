@@ -50,8 +50,12 @@ class PartPriceHistory(db.Model):
     rate = db.Column(db.Float, nullable=False)
     car_photo = db.Column(db.String(300), nullable=True, default='placeholder.jpg')
 
+# Safe table creation context
 with app.app_context():
-    db.create_all()
+    try:
+        db.create_all()
+    except Exception:
+        pass
 
 def allowed_image(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in app.config['ALLOWED_IMAGE_EXTENSIONS']
@@ -61,9 +65,8 @@ def allowed_image(filename):
 # ----------------------------------------
 @app.before_request
 def check_authentication():
-    # Treat the explicit index endpoint and static requests as open parameters
-    open_endpoints = ['login', 'static', 'models_gallery']
-    if request.endpoint in open_endpoints or request.path == '/':
+    open_endpoints = ['login', 'static']
+    if request.endpoint in open_endpoints:
         return None
     if not session.get('logged_in'):
         return redirect(url_for('login'))
@@ -97,9 +100,9 @@ def logout():
 # ----------------------------------------
 # OPERATIONS TRACKING ENGINE ROUTES
 # ----------------------------------------
-@app.route('/')
-@app.route('/models', methods=['GET'])
+@app.route('/', methods=['GET'])
 def models_gallery():
+    unique_batches = []
     try:
         unique_batches = db.session.query(
             PartPriceHistory.car_model,
@@ -109,7 +112,11 @@ def models_gallery():
         ).group_by(PartPriceHistory.car_model, PartPriceHistory.quotation_date).all()
     except Exception:
         db.session.rollback()
-        unique_batches = []
+        # Force table generation attempt if it didn't exist during initial query run
+        try:
+            db.create_all()
+        except Exception:
+            pass
 
     return render_template('models.html', unique_batches=unique_batches)
 
@@ -120,26 +127,29 @@ def index():
     start_date_str = request.args.get('start_date', '').strip()
     end_date_str = request.args.get('end_date', '').strip()
 
-    query = PartPriceHistory.query
+    results = []
+    try:
+        query = PartPriceHistory.query
+        if car_model_query:
+            query = query.filter(PartPriceHistory.car_model.ilike(f"%{car_model_query}%"))
+        if part_query:
+            query = query.filter(PartPriceHistory.part_name.ilike(f"%{part_query}%"))
+        if start_date_str:
+            try:
+                start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
+                query = query.filter(PartPriceHistory.quotation_date >= start_date)
+            except ValueError:
+                pass
+        if end_date_str:
+            try:
+                end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
+                query = query.filter(PartPriceHistory.quotation_date <= end_date)
+            except ValueError:
+                pass
+        results = query.order_by(PartPriceHistory.quotation_date.desc()).all()
+    except Exception:
+        db.session.rollback()
 
-    if car_model_query:
-        query = query.filter(PartPriceHistory.car_model.ilike(f"%{car_model_query}%"))
-    if part_query:
-        query = query.filter(PartPriceHistory.part_name.ilike(f"%{part_query}%"))
-    if start_date_str:
-        try:
-            start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
-            query = query.filter(PartPriceHistory.quotation_date >= start_date)
-        except ValueError:
-            pass
-    if end_date_str:
-        try:
-            end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
-            query = query.filter(PartPriceHistory.quotation_date <= end_date)
-        except ValueError:
-            pass
-
-    results = query.order_by(PartPriceHistory.quotation_date.desc()).all()
     return render_template('index.html', results=results, car_model=car_model_query, 
                            part_name=part_query, start_date=start_date_str, end_date=end_date_str)
 
@@ -219,6 +229,8 @@ def upload_file():
             return redirect(request.url)
 
     return render_template('upload.html')
+
+app = app
 
 if __name__ == '__main__':
     app.run(debug=True)
