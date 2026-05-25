@@ -17,7 +17,7 @@ app.config['ALLOWED_IMAGE_EXTENSIONS'] = {'png', 'jpg', 'jpeg', 'webp'}
 if os.environ.get('VERCEL') or os.environ.get('PROD'):
     # Production Mode (Supabase PostgreSQL Connection Link)
     # REPLACE '[YOUR-PASSWORD]' inside the string below with your actual Supabase database password
-    raw_uri = "postgresql://postgres:[YOUR-PASSWORD]@db.vtyhdivfxqsblgiyeefl.supabase.co:5432/postgres"
+    raw_uri = "postgresql://postgres:chech@44804480@db.vtyhdivfxqsblgiyeefl.supabase.co:5432/postgres"
     
     # Standardize driver protocol formatting safely for modern SQLAlchemy dialects
     if raw_uri.startswith("postgres://"):
@@ -32,8 +32,18 @@ else:
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # Local upload system tracking folders (Fallback rules)
-app.config['UPLOAD_FOLDER'] = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'static', 'uploads')
-app.config['IMAGE_FOLDER'] = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'static', 'car_photos')
+# --- CLOUD SAFE FOLDER CONFIGURATION ---
+if os.environ.get('VERCEL'):
+    # Use the only writable directory available in serverless environments
+    app.config['UPLOAD_FOLDER'] = '/tmp'
+    app.config['IMAGE_FOLDER'] = '/tmp'
+else:
+    # Keeps working perfectly offline on your PC local storage folders
+    app.config['UPLOAD_FOLDER'] = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'static', 'uploads')
+    app.config['IMAGE_FOLDER'] = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'static', 'car_photos')
+    os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+    os.makedirs(app.config['IMAGE_FOLDER'], exist_ok=True)
+# ----------------------------------------
 
 db = SQLAlchemy(app)
 
