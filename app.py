@@ -15,15 +15,15 @@ app.config['ALLOWED_IMAGE_EXTENSIONS'] = {'png', 'jpg', 'jpeg', 'webp'}
 
 # --- AUTOMATED DATABASE ENVIRONMENT SWITCHING ---
 if os.environ.get('VERCEL') or os.environ.get('PROD'):
-    # Production Mode (Supabase PostgreSQL Connection Link)
-    # REPLACE '[YOUR-PASSWORD]' inside the string below with your actual Supabase database password
-    raw_uri = "postgresql://postgres:chech%4044804480@db.vtyhdivfxqsblgiyeefl.supabase.co:6543/postgres"
+    # This is the exact valid string constructed from your Supabase pooler credentials
+    raw_uri = "postgresql://postgres.vtyhdivfxqsblgiyeefl:cmech%4044804480@aws-1-ap-southeast-2.pooler.supabase.com:6543/postgres?sslmode=require"
     
-    # Standardize driver protocol formatting safely for modern SQLAlchemy dialects
     if raw_uri.startswith("postgres://"):
         raw_uri = raw_uri.replace("postgres://", "postgresql://", 1)
         
     app.config['SQLALCHEMY_DATABASE_URI'] = raw_uri
+
+
 else:
     # Offline Local Mode (Your Computer Fallback Storage System)
     DATA_DIR = os.path.abspath(os.path.dirname(__file__))
