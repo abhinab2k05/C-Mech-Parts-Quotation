@@ -14,25 +14,20 @@ app.config['ALLOWED_IMAGE_EXTENSIONS'] = {'png', 'jpg', 'jpeg', 'webp'}
 
 # --- AUTOMATED DATABASE ENVIRONMENT SWITCHING ---
 if os.environ.get('VERCEL') or os.environ.get('PROD'):
-    # Prioritize Vercel Dashboard Environment Variable if configured
     raw_uri = os.environ.get('DATABASE_URL')
-    
-    # Fallback to the direct pooler string with the simplified password layout
     if not raw_uri:
-        raw_uri = "postgresql://postgres.vtyhdivfxqsblgiyeefl:chech448044801@aws-1-ap-southeast-2.pooler.supabase.com:6543/postgres?sslmode=require"
+        raw_uri = "postgresql://postgres.vtyhdivfxqsblgiyeefl:cmech44804480@aws-1-ap-southeast-2.pooler.supabase.com:6543/postgres?sslmode=require"
     
     if raw_uri.startswith("postgres://"):
         raw_uri = raw_uri.replace("postgres://", "postgresql://", 1)
         
     app.config['SQLALCHEMY_DATABASE_URI'] = raw_uri
 else:
-    # Offline Local Mode Fallback
     DATA_DIR = os.path.abspath(os.path.dirname(__file__))
     app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{os.path.join(DATA_DIR, 'parts_history.db')}"
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-# --- CLOUD SAFE FOLDER CONFIGURATION ---
 if os.environ.get('VERCEL'):
     app.config['UPLOAD_FOLDER'] = '/tmp'
     app.config['IMAGE_FOLDER'] = '/tmp'
@@ -43,9 +38,6 @@ else:
     os.makedirs(app.config['IMAGE_FOLDER'], exist_ok=True)
 
 db = SQLAlchemy(app)
-
-os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
-os.makedirs(app.config['IMAGE_FOLDER'], exist_ok=True)
 
 # ----------------------------------------
 # DATABASE RELATIONAL SCHEMA MODEL
@@ -69,8 +61,9 @@ def allowed_image(filename):
 # ----------------------------------------
 @app.before_request
 def check_authentication():
-    open_endpoints = ['login', 'static']
-    if request.endpoint in open_endpoints:
+    # Treat the explicit index endpoint and static requests as open parameters
+    open_endpoints = ['login', 'static', 'models_gallery']
+    if request.endpoint in open_endpoints or request.path == '/':
         return None
     if not session.get('logged_in'):
         return redirect(url_for('login'))
@@ -104,14 +97,19 @@ def logout():
 # ----------------------------------------
 # OPERATIONS TRACKING ENGINE ROUTES
 # ----------------------------------------
-@app.route('/', methods=['GET'])
+@app.route('/')
+@app.route('/models', methods=['GET'])
 def models_gallery():
-    unique_batches = db.session.query(
-        PartPriceHistory.car_model,
-        PartPriceHistory.quotation_date,
-        PartPriceHistory.car_photo,
-        db.func.count(PartPriceHistory.id).label('total_parts')
-    ).group_by(PartPriceHistory.car_model, PartPriceHistory.quotation_date).all()
+    try:
+        unique_batches = db.session.query(
+            PartPriceHistory.car_model,
+            PartPriceHistory.quotation_date,
+            PartPriceHistory.car_photo,
+            db.func.count(PartPriceHistory.id).label('total_parts')
+        ).group_by(PartPriceHistory.car_model, PartPriceHistory.quotation_date).all()
+    except Exception:
+        db.session.rollback()
+        unique_batches = []
 
     return render_template('models.html', unique_batches=unique_batches)
 
@@ -221,9 +219,6 @@ def upload_file():
             return redirect(request.url)
 
     return render_template('upload.html')
-
-# Expose app object directly for production WSGI servers
-app = app
 
 if __name__ == '__main__':
     app.run(debug=True)
