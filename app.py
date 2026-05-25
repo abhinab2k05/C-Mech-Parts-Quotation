@@ -16,7 +16,7 @@ app.config['ALLOWED_IMAGE_EXTENSIONS'] = {'png', 'jpg', 'jpeg', 'webp'}
 if os.environ.get('VERCEL') or os.environ.get('PROD'):
     raw_uri = os.environ.get('DATABASE_URL')
     if not raw_uri:
-        raw_uri = "postgresql://postgres.vtyhdivfxqsblgiyeefl:cmech44804480@aws-1-ap-southeast-2.pooler.supabase.com:6543/postgres?sslmode=require"
+        raw_uri = "postgresql://postgres.vtyhdivfxqsblgiyeefl:cmech448044801@aws-1-ap-southeast-2.pooler.supabase.com:6543/postgres?sslmode=require"
     
     if raw_uri.startswith("postgres://"):
         raw_uri = raw_uri.replace("postgres://", "postgresql://", 1)
