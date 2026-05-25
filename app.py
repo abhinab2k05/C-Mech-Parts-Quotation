@@ -17,7 +17,7 @@ app.config['ALLOWED_IMAGE_EXTENSIONS'] = {'png', 'jpg', 'jpeg', 'webp'}
 if os.environ.get('VERCEL') or os.environ.get('PROD'):
     # Production Mode (Supabase PostgreSQL Connection Link)
     # REPLACE '[YOUR-PASSWORD]' inside the string below with your actual Supabase database password
-    raw_uri = "postgresql://postgres:chech@44804480@db.vtyhdivfxqsblgiyeefl.supabase.co:5432/postgres"
+    raw_uri = "postgresql://postgres:chech%4044804480@db.vtyhdivfxqsblgiyeefl.supabase.co:5432/postgres"
     
     # Standardize driver protocol formatting safely for modern SQLAlchemy dialects
     if raw_uri.startswith("postgres://"):
@@ -246,5 +246,10 @@ def upload_file():
 
     return render_template('upload.html')
 
+
+# Vercel looks for the global 'app' object. We expose it directly here.
+app = app
+
 if __name__ == '__main__':
+    # This only runs when you execute 'python app.py' locally on your PC
     app.run(debug=True)
