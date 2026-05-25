@@ -19,7 +19,7 @@ if os.environ.get('VERCEL') or os.environ.get('PROD'):
     
     # Fallback to the direct pooler string with the simplified password layout
     if not raw_uri:
-        raw_uri = "postgresql://postgres.vtyhdivfxqsblgiyeefl:cmech44804480@aws-1-ap-southeast-2.pooler.supabase.com:6543/postgres?sslmode=require"
+        raw_uri = "postgresql://postgres.vtyhdivfxqsblgiyeefl:chech448044801@aws-1-ap-southeast-2.pooler.supabase.com:6543/postgres?sslmode=require"
     
     if raw_uri.startswith("postgres://"):
         raw_uri = raw_uri.replace("postgres://", "postgresql://", 1)
